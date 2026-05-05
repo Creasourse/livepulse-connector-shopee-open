@@ -1,0 +1,117 @@
+server:
+  port: 23011
+
+spring:
+  application:
+    name: shopee-open-connector-server
+  config:
+    import:
+      - optional:nacos:${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+      - optional:nacos:conn-client-base-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        enabled: true
+      config:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        file-extension: properties
+        extension-configs:
+
+  profiles:
+    active: ${PROFILES_ACTIVE:dev}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  health:
+    redis:
+      enabled: false
+
+logging:
+  config: classpath:logback-custom.xml
+  level:
+    org:
+      springframework:
+        security: info
+    com:
+      cs:
+        mapper: debug
+
+
+# Shopee 连接器配置
+shopee:
+  # API 配置
+  api:
+    # API 版本
+    version: 2.0
+    # 请求超时时间（秒）
+    timeout: 30
+    # 连接超时时间（秒）
+    connect-timeout: 10
+
+  # 同步配置
+  sync:
+    # 批次大小
+    batch-size: 100
+    # 最大重试次数
+    max-retries: 3
+    # 重试延迟（毫秒）
+    retry-delay: 1000
+    # 每次查询的最大天数
+    max-query-days: 30
+
+  # 调度任务配置
+  scheduled:
+    # 是否启用调度任务
+    enabled: true
+
+    # 订单同步配置
+    order-sync:
+      enabled: true
+      # Cron表达式：每4小时执行一次
+      cron: "0 0 */4 * * ?"
+      # 初始延迟：60秒
+      initial-delay: 60
+      # 固定延迟：秒
+      fixed-delay: 14400
+
+    # 产品同步配置
+    product-sync:
+      enabled: true
+      # Cron表达式：每天凌晨2点执行
+      cron: "0 0 2 * * ?"
+      # 初始延迟：120秒
+      initial-delay: 120
+      # 固定延迟：秒
+      fixed-delay: 86400
+
+    # 客户同步配置
+    customer-sync:
+      enabled: true
+      # Cron表达式：每天凌晨3点执行
+      cron: "0 0 3 * * ?"
+      # 初始延迟：180秒
+      initial-delay: 180
+      # 固定延迟：秒
+      fixed-delay: 86400
